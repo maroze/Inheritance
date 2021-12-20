@@ -7,19 +7,38 @@ using System.Threading.Tasks;
 
 namespace Inheritance
 {
-    public interface Post
+    interface IFio
     {
-        string report();
+        string GetFio();
     }
-    public interface DropOutOf
+    interface IDolsnoct : IFio
     {
-        string statement();
+        string GetDol();
     }
-    public interface Lessons
+    interface IGropp : IFio
+    {
+        string GetGropp();
+    }
+    interface ICreat : IDolsnoct
+    {
+        Student CreationStudent(string lastname, string name, string patronymic, string group);
+        Teacher CreationTeacher(string lastname, string name, string patronymic, Prepod dolj);
+    }
+    interface Lessons : IDolsnoct
     {
         string discipline();
     }
+    interface DropOutOf : IGropp
+    {
+        string statement();
+    }
 
+
+    public enum Prepod
+    {
+        Assistant = 0,
+        StLecturer = 1
+    }
     public abstract class Person
     {
         public string Lastname { get; set; }
@@ -32,61 +51,51 @@ namespace Inheritance
             this.Patronymic = Patronymic;
 
         }
-        public abstract string profile();
-        
+        public string GetFio()
+        {
+            return Lastname + " " + Name + " " + Patronymic;
+        }
+
     }
-    public class Kadrovik : Person, Post
+    public class Kadrovik : Worker, ICreat
     {
-        public string report()
+        public Kadrovik(string lastname, string name, string patronymic) : base(lastname, name, patronymic, "Кадровик")
         {
-            return "Кадровик";
+
         }
-        public Kadrovik(string lastname, string name, string patronymic) : base(lastname, name, patronymic)
+        public Student CreationStudent(string lastname, string name, string patronymic, string group)
         {
-            Lastname = lastname;
-            Name = name;
-            Patronymic = patronymic;
+            return new Student(lastname, name, patronymic, group);
+             
         }
-        public override string profile()
+        public Teacher CreationTeacher(string lastname, string name, string patronymic, Prepod dolj)
         {
-            return Lastname + " " + Name + " " + Patronymic ;
-        }
-        public string CreationStudent( string lastname, string name, string patronymic, string group)
-        {
-            var stud = new Student(lastname, name, patronymic, group);
-            return lastname + " " + name + " " + patronymic + " " + group;
-        }
-        public string CreationTeacher( string lastname, string name, string patronymic, /*string post,*/ int exp)
-        {
-            string post;
-            if (exp >= 3) { post = "Старший преподаватель"; }
-            else { post = "Ассистент"; }
-            var teach = new Teacher(lastname, name, patronymic);
-            return lastname + " " + name + " " + patronymic + " " + post;
+            return new Teacher(lastname, name, patronymic, dolj);
         }
 
 
     }
-    public class Teacher : Person, Lessons
+    public class Worker : Person
     {
-        public string report(int exp)
+        string dolj;
+        public Worker(string lastname, string name, string patronymic, string dolj) : base(lastname, name, patronymic)
         {
-            string post;
-            if (exp >= 3) { post = "Старший преподаватель"; }
-            else { post = "Ассистент"; }
-            return post;
-
+            this.dolj = dolj;
         }
+        public string GetDol()
+        {
+            return dolj;
+        }
+    }
+    public class Teacher : Worker, Lessons
+    {
+        static string[] dol = new string[] { "Ассистент", "Старший преподаватель" };
         public string discipline()
         {
             return "Проводит лекцию";
         }
-        public Teacher(string Lastname, string Name, string Patronymic) : base(Lastname, Name, Patronymic)
+        public Teacher(string Lastname, string Name, string Patronymic, Prepod dolj) : base(Lastname, Name, Patronymic, dol[(int)dolj])
         {
-        }
-        public override string profile()
-        {
-            return Lastname + " " + Name + " " + Patronymic;
         }
     }
 
@@ -102,9 +111,9 @@ namespace Inheritance
         {
             this.Group = Group;
         }
-        public override string profile()
+        public string GetGropp()
         {
-            return Lastname + " " + Name + " " + Patronymic + " " + Group;
+            return Group;
         }
     }
 
@@ -114,11 +123,12 @@ namespace Inheritance
     {
         static void Main(string[] args)
         {
-            var person = new Kadrovik("Антоненко", "Антон", "Антонович");
-            Student student1 = new Student("Иванов", "Иван", "Иванович", "3 курс");
-            Teacher teacher1 = new Teacher("Учителев", "Учитель", "Учителич");
-            Console.WriteLine($"Student: {student1.profile()} {student1.statement()} \n" + $"Teacher: {teacher1.profile()} {teacher1.report(3)} {teacher1.discipline()} \n" + $"Kadrovik: {person.profile()} {person.report()} \n" + $"The Teacher created by the kadrovik: {person.CreationTeacher("Милос", "Рикардо", "Рикардович", 2)} \n" + $"The Student created by the kadrovik: {person.CreationStudent("Валерова", "Валерия", "Валеривна", "4 курс")}");
-
+            Kadrovik one = new Kadrovik("Боб", "Губка", "Квадратные штаны");
+            Student four = one.CreationStudent("Паук", "Человек", "Паутинович", "Членистоногие");
+            Teacher five = one.CreationTeacher("Нибиру", "Снова", "Прилетает", Prepod.Assistant);
+            Teacher two = new Teacher ("Наталья", "Морская", "Пехота", Prepod.StLecturer);
+            Console.WriteLine($"{one.GetFio()} {one.GetDol()}\n" + $"{four.GetFio()} {four.GetGropp()} {four.statement()}\n" +
+                $"{five.GetFio()} {five.GetDol()}\n" + $"{two.GetFio()} {two.GetDol()} {two.discipline()}\n");
             Console.ReadLine();
         }
     }
