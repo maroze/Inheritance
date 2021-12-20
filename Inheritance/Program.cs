@@ -19,6 +19,9 @@ namespace Inheritance
     {
         string discipline();
     }
+public enum Dolj (){Assistant=0;
+Lector = 1;
+}
 
     public abstract class Person
     {
